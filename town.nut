@@ -152,11 +152,15 @@ function GoalTown::MonthlyManageTown()
     local parsed_cat = 0;   // index of parsed category
     local new_town_growth_rate = null;
     // Defining difficulty and calculation factors
-    local d_factor = GSController.GetSetting("goal_scale_factor") / 100.0;
+    local day_length_scale = GSController.GetSetting("day_length_scale").tofloat();
+    local day_length_factor = GSGameSettings.GetValue("day_length_factor").tofloat();
+    local day_length_growth_factor = day_length_factor / pow(1.0 + 0.1 * log(day_length_factor), day_length_scale - 1.0);
+    local day_length_goal_factor = 1.0 + 2.0 * pow((day_length_factor / 100.0) * (day_length_scale - 1.0) * log(day_length_factor), 0.75);
+    local d_factor = (GSController.GetSetting("goal_scale_factor") * day_length_goal_factor) / 100.0;
     local g_factor = GSController.GetSetting("town_growth_factor");
     local e_factor = GSController.GetSetting("exponentiality_factor");
     local sup_imp_part = GSController.GetSetting("supply_impacting_part") / 100.0;
-    local lowest_tgr = GSController.GetSetting("lowest_town_growth_rate");
+    local lowest_tgr = (GSController.GetSetting("lowest_town_growth_rate") / day_length_growth_factor).tointeger();
     local allow_0_days_growth = GSController.GetSetting("allow_0_days_growth");
     // Clearing the arrays
     this.town_supplied_cat = array(::CargoCatNum, 0);
@@ -205,7 +209,7 @@ function GoalTown::MonthlyManageTown()
     }
 
     // Calculating goals
-    for (local i = 0; i < CargoCatNum && cur_pop > ::CargoMinPopDemand[i]; i++) {
+    for (local i = 0; i < ::CargoCatNum && cur_pop > ::CargoMinPopDemand[i]; i++) {
         this.town_goals_cat[i] = max((((cur_pop  - ::CargoMinPopDemand[i]).tofloat() / 1000)
                         * ::CargoPermille[i]
                         * d_factor).tointeger(),1);
@@ -222,7 +226,7 @@ function GoalTown::MonthlyManageTown()
     }
 
     // Calculating global goal and achievement
-    for (local i = 0; i < CargoCatNum; ++i) {
+    for (local i = 0; i < ::CargoCatNum; ++i) {
         if (this.town_goals_cat[i] <= 0) {
             this.town_stockpiled_cat[i] = 0;
             continue;
@@ -244,7 +248,7 @@ function GoalTown::MonthlyManageTown()
             }
         }
 
-        this.DebugCargoCatInfo(i) // Debug info: print stockpiled/supplied/goal per category
+        this.DebugCargoCatInfo(i); // Debug info: print stockpiled/supplied/goal per category
     }
 
     // Calculates new town growth rate based on missing cargo percentage
@@ -253,15 +257,15 @@ function GoalTown::MonthlyManageTown()
     // An exponential extra growth is calculated based on missing cargo requirements.
     // The max growth rate and difference between max growth rate and lowest growth rate
     // multiplied by extra growth factor are combined into the resulting growth rate.
-    Log.Info("Goal diff: " + goal_diff_percent + "%", Log.LVL_DEBUG);
+    local max_town_growth_rate = 0;
     if ((1.0 - goal_diff_percent) >= sup_imp_part) {
-        local max_town_growth_rate = g_factor * exp(-cur_pop.tofloat()/10000);
+        max_town_growth_rate = (g_factor * exp(-cur_pop.tofloat() / 10000.0)) / day_length_growth_factor;
         max_town_growth_rate = max_town_growth_rate < 1 ? 1 : max_town_growth_rate;
         local growth = 1 - (1 - exp(-e_factor * (1 - goal_diff_percent))) / (1 - exp(-e_factor));
         new_town_growth_rate = (max_town_growth_rate + (lowest_tgr - max_town_growth_rate) * growth).tointeger();
-        Log.Info("max_growth_rate: " + max_town_growth_rate + ", growth: " + growth + ", new growth rate: " + new_town_growth_rate, Log.LVL_DEBUG);
     }
     else {
+        max_town_growth_rate = lowest_tgr;
         new_town_growth_rate = lowest_tgr;
     }
 
@@ -280,6 +284,14 @@ function GoalTown::MonthlyManageTown()
     this.tgr_array[i] = new_town_growth_rate;
     sum_array += this.tgr_array[i];
     this.tgr_average = (sum_array/(i+1)).tointeger();
+    
+    Log.Info(GSTown.GetName(this.id) +
+            " - Goal diff: " + goal_diff_percent + "%" +
+            ", lowest_tgr: " + lowest_tgr +
+            ", max_town_growth_rate: " + max_town_growth_rate +
+            ", new growth rate: " + new_town_growth_rate +
+            ", average: " + this.tgr_average,
+        Log.LVL_DEBUG);
 
     // Shift the array by one element when full
     this.DebugTgrArray() // Debug info: print the array's content

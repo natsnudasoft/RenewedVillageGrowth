@@ -13,9 +13,9 @@ require("version.nut");
 
 class MainClass extends GSInfo
     {
-    function GetAuthor()                { return "bigyihsuan"; }
-    function GetName()                  { return "Renewed Village Growth byh-fork"; }
-    function GetShortName()             { return "RVBY"; }
+    function GetAuthor()                { return "natsnudasoft"; }
+    function GetName()                  { return "Renewed Village Growth natsnudasoft-fork"; }
+    function GetShortName()             { return "RVNS"; }
     function GetDescription()           { return "Towns require various cargo deliveries to grow. Required cargos can be randomized. Town growth is limited by percentage of transported specific cargos. Supporting most Industry NewGRF sets."; }
     function GetURL()                   { return "https://www.tt-forums.net/viewtopic.php?f=65&t=87052"; }
     function GetVersion()               { return SELF_VERSION; }
@@ -249,6 +249,14 @@ class MainClass extends GSInfo
                 hard_value = 3,
                 custom_value = 3,
                 flags = CONFIG_INGAME, min_value = 1, max_value = 5 });
+
+        AddSetting({ name = "day_length_scale",
+                description = "Expert: Goal and Growth Economy Reduction Factor Scale",
+                easy_value = 3,
+                medium_value = 6,
+                hard_value = 9,
+                custom_value = 6,
+                flags = CONFIG_INGAME, min_value = 1, max_value = 11 });
 
         AddSetting({ name = "lowest_town_growth_rate",
                 description = "Expert: slowest TGR if requirements are not met",
