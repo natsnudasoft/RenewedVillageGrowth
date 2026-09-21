@@ -295,7 +295,7 @@ class MainClass extends GSInfo
         AddSetting({
                 name = "pt_log_level", 
                 description = "P&T Debug: Log level (higher = print more)", 
-                easy_value = 3, medium_value = 3, hard_value = 3, custom_value = 3, //reminder to set to 1
+                easy_value = 3, medium_value = 3, hard_value = 3, custom_value = 1,
                 flags = CONFIG_INGAME, 
                 min_value = 1, max_value = 3});
         AddLabels("pt_log_level", {_1 = "1: Info", _2 = "2: Verbose", _3 = "3: Debug" } );
@@ -310,6 +310,11 @@ class MainClass extends GSInfo
                 description = "Passenger rate offset", easy_value = 1, medium_value = 1, hard_value = 1, custom_value = 1,
                 flags = CONFIG_INGAME, 
                 min_value = -4, max_value = 6});
+        AddSetting({
+                name = "pt_base_prod", 
+                description = "Base Production Rate", easy_value = 125, medium_value = 100, hard_value = 75, custom_value = 100,
+                flags = CONFIG_INGAME, 
+                min_value = 1, max_value = 5000});
         /* === END P&T === */
     }
 }
