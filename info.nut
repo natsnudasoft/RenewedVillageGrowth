@@ -226,6 +226,15 @@ class MainClass extends GSInfo
             custom_value = -1,
             flags = CONFIG_INGAME, min_value = -1, max_value = 100000, step_size = 100});
 
+        AddSetting({
+            name = "scaling_window",
+            description = "Population difference to reach peak population demand",
+            easy_value = 2000,
+            medium_value = 1000,
+            hard_value = 500,
+            custom_value = 1000,
+            flags = CONFIG_INGAME, min_value = 0, max_value = 10000, step_size = 100});
+
         AddSetting({ name = "town_growth_factor",
                 description = "Expert: town growth factor",
                 easy_value = 50,
