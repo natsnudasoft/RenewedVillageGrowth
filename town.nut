@@ -152,6 +152,7 @@ function GoalTown::MonthlyManageTown()
     local parsed_cat = 0;   // index of parsed category
     local new_town_growth_rate = null;
     // Defining difficulty and calculation factors
+    local scaling_window = GSController.GetSetting("scaling_window").tofloat();
     local day_length_scale = GSController.GetSetting("day_length_scale").tofloat();
     local day_length_factor = GSGameSettings.GetValue("day_length_factor").tofloat();
     local day_length_growth_factor = day_length_factor / pow(1.0 + 0.1 * log(day_length_factor), day_length_scale - 1.0);
@@ -210,9 +211,10 @@ function GoalTown::MonthlyManageTown()
 
     // Calculating goals
     for (local i = 0; i < ::CargoCatNum && cur_pop > ::CargoMinPopDemand[i]; i++) {
-        this.town_goals_cat[i] = max((((cur_pop  - ::CargoMinPopDemand[i]).tofloat() / 1000)
-                        * ::CargoPermille[i]
-                        * d_factor).tointeger(),1);
+        local excess_pop = max(cur_pop - ::CargoMinPopDemand[i], 0);
+        local scale_factor = min((excess_pop / scaling_window).tointeger(), 1);
+        local peak_demand = (cur_pop.tofloat() / 1000) * ::CargoPermille[i] * d_factor;
+        this.town_goals_cat[i] = max((peak_demand * scale_factor).tointeger(), 1);
     }
 
     // If town's population is too low to calculate a goal, it is set to 1
