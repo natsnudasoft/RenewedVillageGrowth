@@ -135,12 +135,13 @@ function GetNotProvidedCargo(town_list, towns)
 
 function CreateSubsidies(towns, companies)
 {
+    local subsidies_created = false;
     if (GSGameSettings.GetValue("difficulty.subsidy_duration") == 0)
-        return;
+        return subsidies_created;
 
     local subsidies_type = GSController.GetSetting("subsidies_type");
     if (subsidies_type == SubsidiesType.NONE)
-        return;
+        return subsidies_created;
 
     local subsidies = {};
 
@@ -186,6 +187,7 @@ function CreateSubsidies(towns, companies)
                 Helper.GetPAXCargo(),
                 GSSubsidy.SPT_TOWN, subs.town_subsidy.town_1,
                 GSSubsidy.SPT_TOWN, subs.town_subsidy.town_2);
+            subsidies_created = success || subsidies_created;
         }
 
         if (subs.cargo_subsidy != null) {
@@ -193,8 +195,10 @@ function CreateSubsidies(towns, companies)
                 subs.cargo_subsidy.cargo_id,
                 GSSubsidy.SPT_INDUSTRY, subs.cargo_subsidy.providing_industry_id,
                 GSSubsidy.SPT_INDUSTRY, subs.cargo_subsidy.accepting_industry_id);
+            subsidies_created = success || subsidies_created;
         }
     }
 
     DebugSubsidies(subsidies);
+    return subsidies_created;
 }
