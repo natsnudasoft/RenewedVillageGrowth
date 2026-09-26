@@ -13,9 +13,9 @@ require("version.nut");
 
 class MainClass extends GSInfo
     {
-    function GetAuthor()                { return "bigyihsuan"; }
-    function GetName()                  { return "Renewed Village Growth byh-fork + Peaks & Troughs"; }
-    function GetShortName()             { return "RVBP"; }
+    function GetAuthor()                { return "natsnudasoft"; }
+    function GetName()                  { return "Renewed Village Growth natsnudasoft-fork + Peaks & Troughs"; }
+    function GetShortName()             { return "RVNS"; }
     function GetDescription()           { return "Towns require various cargo deliveries to grow. Required cargos can be randomized. Town growth is limited by percentage of transported specific cargos. Supporting most Industry NewGRF sets."; }
     function GetURL()                   { return "https://www.tt-forums.net/viewtopic.php?f=65&t=87052"; }
     function GetVersion()               { return SELF_VERSION; }
@@ -226,6 +226,15 @@ class MainClass extends GSInfo
             custom_value = -1,
             flags = CONFIG_INGAME, min_value = -1, max_value = 100000, step_size = 100});
 
+        AddSetting({
+            name = "scaling_window",
+            description = "Population difference to reach peak population demand",
+            easy_value = 2000,
+            medium_value = 1000,
+            hard_value = 500,
+            custom_value = 1000,
+            flags = CONFIG_INGAME, min_value = 0, max_value = 10000, step_size = 100});
+
         AddSetting({ name = "town_growth_factor",
                 description = "Expert: town growth factor",
                 easy_value = 50,
@@ -249,6 +258,14 @@ class MainClass extends GSInfo
                 hard_value = 3,
                 custom_value = 3,
                 flags = CONFIG_INGAME, min_value = 1, max_value = 5 });
+
+        AddSetting({ name = "day_length_scale",
+                description = "Expert: Goal and Growth Economy Reduction Factor Scale",
+                easy_value = 3,
+                medium_value = 6,
+                hard_value = 9,
+                custom_value = 6,
+                flags = CONFIG_INGAME, min_value = 1, max_value = 11 });
 
         AddSetting({ name = "lowest_town_growth_rate",
                 description = "Expert: slowest TGR if requirements are not met",
