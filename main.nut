@@ -165,6 +165,7 @@ function MainClass::Init()
                                              GSController.GetSetting("category_4_min_pop"),
                                              GSController.GetSetting("category_5_min_pop"),
                                              GSController.GetSetting("category_6_min_pop")];
+        ::SettingsTable.initial_subsidies_created <- false;
     }
 
     // Set current date
@@ -259,6 +260,7 @@ function MainClass::Save()
         save_table.display_cargo <- ::SettingsTable.display_cargo;
         save_table.cargo_6_category <- ::SettingsTable.cargo_6_category;
         save_table.category_min_pop <- ::SettingsTable.category_min_pop;
+        save_table.initial_subsidies_created <- ::SettingsTable.initial_subsidies_created;
 
         foreach (company in this.companies)
         {
@@ -289,6 +291,11 @@ function MainClass::Load(version, saved_data)
         ::SettingsTable.display_cargo <- saved_data.display_cargo;
         ::SettingsTable.cargo_6_category <- saved_data.cargo_6_category;
         ::SettingsTable.category_min_pop <- saved_data.category_min_pop;
+        if ("initial_subsidies_created" in saved_data) {
+            ::SettingsTable.initial_subsidies_created <- saved_data.initial_subsidies_created;
+        } else {
+            ::SettingsTable.initial_subsidies_created <- false;
+        }
 
         foreach (companyid, company_data in saved_data.company_data_table) {
             ::CompanyDataTable[companyid] <- company_data;
@@ -508,14 +515,18 @@ function MainClass::ManageTowns()
     // Run the yearly functions - Nothing to do for now, so we leave it out
     local year = GSDate.GetYear(date);
     local diff_year = year - this.current_year;
-    if ( diff_year == 0)
+    if ( diff_year == 0 && ::SettingsTable.initial_subsidies_created )
         return;
     else
     {
-        Log.Info("Starting Yearly Updates...", Log.LVL_INFO);
+        if (diff_year != 0) {
+            Log.Info("Starting Yearly Updates...", Log.LVL_INFO);
 
-        ProspectRawIndustry();
-        CreateSubsidies(towns, companies);
+            ProspectRawIndustry();
+        }
+        
+        local success = CreateSubsidies(towns, companies);
+        ::SettingsTable.initial_subsidies_created = ::SettingsTable.initial_subsidies_created || success;
 
         this.current_year = year;
     }
