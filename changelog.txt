@@ -1,4 +1,8 @@
-*** Renewed Village Growth bigy-fork GS Changelog ***
+*** Renewed Village Growth natsnudasoft-fork GS Changelog ***
+
+Version 12.4 (2026-09-19)
+- mod: new growth rate calculation takes economoy reduction factor into account
+- mod: new goal calculation takes economoy reduction factor into account
 
 Version 12.3 (2026/05/10)
 - mod: Double max towns from 2000 to 4000
